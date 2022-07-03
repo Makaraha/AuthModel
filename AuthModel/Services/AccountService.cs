@@ -1,10 +1,11 @@
 ﻿using AuthModel.Context;
 using AuthModel.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AuthModel.Services
 {
-    public class AccountService
+    public class AccountService : ControllerBase
     {
         private UserManager<User> userManager { get; set; }
         private RoleManager<IdentityRole> roleManager { get; set; }
@@ -21,14 +22,12 @@ namespace AuthModel.Services
         {
             var user = new User();
             user.UserName = model.Name;
-            await userManager.CreateAsync(user);
-            await userManager.AddPasswordAsync(user, model.Password);
+            var result = await userManager.CreateAsync(user, model.Password);
 
             if (!await roleManager.RoleExistsAsync("user"))
                 await roleManager.CreateAsync(new IdentityRole() { Name = "user" });
 
-            await userManager.AddToRoleAsync(user, "user");
-            await authContext.SaveChangesAsync();
+            var result2 = await userManager.AddToRoleAsync(user, "user");
         }
     }
 }
